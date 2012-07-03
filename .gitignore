@@ -1,0 +1,14 @@
+.bundle
+/tmp
+.DS_Store
+.rvmrc
+*~
+coverage/
+.idea
+/node_modules
+npm-debug.log
+/.sass-cache
+/log/*
+public/doc
+doc/_site
+doc/_cache
