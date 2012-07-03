@@ -9,8 +9,7 @@
   "bin": { "cssmon": "./bin/cssmon" },
   "dependencies": {
     "ws": "latest",
-    "watch": "latest",
-    "commander": "latest"
+    "watch": "latest"
   },
   "devDependencies": {},
   "optionalDependencies": {},

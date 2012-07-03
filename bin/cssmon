@@ -1,9 +1,4 @@
 #!/usr/bin/env node
-var program = require("commander");
-program
-    .option('-i, --interval [ms]', 100)
-    .parse(process.argv)
-
 var
     watch = require("watch"),
     path = require("path"),
