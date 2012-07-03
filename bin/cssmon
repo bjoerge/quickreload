@@ -1,41 +1,44 @@
 #!/usr/bin/env node
 var program = require("commander");
 program
-  .option('-i, --interval [ms]', 100)
-  .parse(process.argv)
+    .option('-i, --interval [ms]', 100)
+    .parse(process.argv)
 
-var 
-	watch = require("watch"),
-	path = require("path"),
-	WebSocketServer = require('ws').Server,
-	wss = new WebSocketServer({port: 1337}),
-	clients = [];
+var
+    watch = require("watch"),
+    path = require("path"),
+    WebSocketServer = require('ws').Server,
+    wss = new WebSocketServer({port:1337}),
+    clients = [];
 
 function sendReload() {
   console.log("Tell clients to reload!");
-  clients.forEach(function(client) {
-	client.send("reload");
+  clients.forEach(function (client) {
+    try {
+      client.send("reload");
+    } catch (e) {
+    }
   });
-} 
+}
 
-wss.on('connection', function(client) {
+wss.on('connection', function (client) {
   console.log("Client connected");
-	clients.push(client);
+  clients.push(client);
 });
 
 var filesMatch = /(.css|.sass)$/;
 
 console.log("Waiting for connections");
 
-watch.createMonitor(".", {interval: 100}, function (monitor) {
+watch.createMonitor(".", {interval:100}, function (monitor) {
   monitor.on("created", function (f, stat) {
-	if (f.match(filesMatch)) sendReload();
+    if (f.match(filesMatch)) sendReload();
   });
   monitor.on("changed", function (f, curr, prev) {
-	if (f.match(filesMatch)) sendReload();
+    if (f.match(filesMatch)) sendReload();
   });
   monitor.on("removed", function (f, stat) {
-	if (f.match(filesMatch)) sendReload();
+    if (f.match(filesMatch)) sendReload();
   });
-  console.log("Watching "+path.resolve(".")+" for changes in files matching "+filesMatch)
+  console.log("Watching " + path.resolve(".") + " for changes in files matching " + filesMatch)
 });
