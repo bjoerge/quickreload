@@ -2,11 +2,13 @@
   "author": " <bjoerge@bengler.no>",
   "name": "quickreload",
   "description": "A tiny thing to tell the browser to reload css / javascript when files are changed on disk",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "repository": {
     "url": ""
   },
-  "bin": { "quickreload": "./bin/quickreload" },
+  "bin": {
+    "quickreload": "./bin/quickreload"
+  },
   "dependencies": {
     "coffee-script": "latest",
     "ws": "latest",
