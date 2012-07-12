@@ -16,7 +16,7 @@ connect = (opts={}) ->
     console.log("Unable to connect to watcher")
 
   connection.onmessage = (message) ->
-    switch message
+    switch message.data
       when 'reload-css'
         reloadStylesheets() 
       when 'reload-js'
