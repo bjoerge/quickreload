@@ -1,0 +1,43 @@
+#!/usr/bin/env node
+require("coffee-script");
+var
+    watch = require("watch"),
+    path = require("path"),
+    server = require("../server");
+    _ = require("lodash");
+
+send = server.serve();
+
+var deb = function(func) {
+  return _.debounce(func, 50);
+};
+
+var listeners = {
+  css: {
+    match: /(.css|.sass)$/,
+    onChange: deb(function() {
+      send("reload-css");
+    })
+  },
+  js: {
+    match: /(.js|.coffee|.json)$/,
+    onChange: deb(function(f) {
+      send("reload-js");
+    })
+  }
+};
+
+var handleChange = function(f, stat) {
+  Object.keys(listeners).forEach(function(key) {
+    var listener = listeners[key];
+    if (f.match(listener.match))
+      listener.onChange(f);
+  });
+};
+
+watch.createMonitor(".", {interval: 100}, function (monitor) {
+  monitor.on("created", handleChange);
+  monitor.on("changed", handleChange);
+  monitor.on("removed", handleChange);
+  console.log("Watching " + path.resolve("."))
+});

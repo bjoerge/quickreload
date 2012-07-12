@@ -1,20 +1,22 @@
 {
   "author": " <bjoerge@bengler.no>",
-  "name": "cssreload",
-  "description": "A tiny thing to tell the browser to reload css when files are changed on disk",
+  "name": "quickreload",
+  "description": "A tiny thing to tell the browser to reload css / javascript when files are changed on disk",
   "version": "0.0.0",
   "repository": {
     "url": ""
   },
-  "bin": { "cssmon": "./bin/cssmon" },
+  "bin": { "quickreload": "./bin/quickreload" },
   "dependencies": {
+    "coffee-script": "latest",
     "ws": "latest",
-    "watch": "latest"
+    "watch": "latest",
+    "lodash": "latest"
   },
   "devDependencies": {},
   "optionalDependencies": {},
   "engines": {
     "node": "*"
   },
-  "main": "cssreload.js"
+  "main": "client.coffee"
 }
