@@ -10,7 +10,7 @@ reloader.js:
 	@mv client.js reloader.js
 
 reloader.min.js: reloader.js
-	@uglifyjs --no-mangle $(DST)/$< > $(DST)/$@
+	@./node_modules/.bin/uglifyjs --no-mangle $(DST)/$< > $(DST)/$@
 	@node -e "console.log('%sKB %s', (Math.round(require('fs').statSync('$(DST)/$@').size/1024)), '$(DST)/$@')"
 
 clean:

@@ -10,12 +10,14 @@
     "quickreload": "./bin/quickreload"
   },
   "dependencies": {
-    "coffee-script": "latest",
     "ws": "latest",
     "watch": "latest",
-    "lodash": "latest"
+    "lodash": "latest",
+    "coffee-script": "latest"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "uglify-js": "~2.2.3"
+  },
   "optionalDependencies": {},
   "engines": {
     "node": "*"
