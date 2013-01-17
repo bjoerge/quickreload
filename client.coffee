@@ -1,7 +1,6 @@
 reloadStylesheets = ->
-  queryString = '?reload=' + new Date().getTime();
-  $('link[rel="stylesheet"]').each ->
-    @href = @href.replace(/\?.*|$/, queryString);
+  queryString = '?reload=' + new Date().getTime()
+  el.href = el.href.replace(/\?.*|$/, queryString) for el in document.querySelectorAll('link[rel="stylesheet"]')
 
 connect = (opts={}) ->
   # if user is running mozilla then use it's built-in WebSocket
