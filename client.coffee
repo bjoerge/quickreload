@@ -4,7 +4,9 @@ reloadStylesheets = ->
 
 connect = (opts={}) ->
   # if user is running mozilla then use it's built-in WebSocket
-  window.WebSocket ||= window.MozWebSocket
+  WebSocket = window.WebSocket || window.MozWebSocket
+
+  return unless WebSocket
 
   connection = new WebSocket('ws://' + (opts.host || document.domain || 'localhost') + ':'+(opts.port || 8081))
 
