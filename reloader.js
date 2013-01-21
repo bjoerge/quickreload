@@ -15,11 +15,14 @@
   };
 
   connect = function(opts) {
-    var connection;
+    var WebSocket, connection;
     if (opts == null) {
       opts = {};
     }
-    window.WebSocket || (window.WebSocket = window.MozWebSocket);
+    WebSocket = window.WebSocket || window.MozWebSocket;
+    if (!WebSocket) {
+      return;
+    }
     connection = new WebSocket('ws://' + (opts.host || document.domain || 'localhost') + ':' + (opts.port || 8081));
     connection.onopen = function() {
       return console.log("Connected to watcher");
