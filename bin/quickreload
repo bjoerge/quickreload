@@ -24,6 +24,12 @@ var listeners = {
     onChange: deb(function(f) {
       send("reload-js");
     })
+  },
+  html: {
+    match: /(.html)$/,
+    onChange: deb(function(f) {
+      send("reload");
+    })
   }
 };
 
