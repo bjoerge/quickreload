@@ -22,5 +22,7 @@ connect = (opts={}) ->
         reloadStylesheets() 
       when 'reload-js'
         window.location.reload()    
+      when 'reload'
+        window.location.reload()    
 
 connect()
