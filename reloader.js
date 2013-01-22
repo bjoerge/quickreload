@@ -36,6 +36,8 @@
           return reloadStylesheets();
         case 'reload-js':
           return window.location.reload();
+        case 'reload':
+          return window.location.reload();
       }
     };
   };
