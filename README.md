@@ -4,7 +4,7 @@ A tiny thing to make the browser reload css and javascript when files are change
 
 ## Usage
 
-    $ sudo npm install -g quickreload
+    $ npm install -g quickreload
 
 Start up the monitor from the command line in the root directory you want to monitor:
 
