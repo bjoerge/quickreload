@@ -3,8 +3,37 @@ require("coffee-script");
 var
     watch = require("watch"),
     path = require("path"),
-    server = require("../server");
-    _ = require("lodash");
+    server = require("../server"),
+    _ = require("lodash"),
+    optimist = require('optimist');
+
+var argv = optimist
+  .usage('Usage: quickreload [root] {OPTIONS}')
+  .wrap(80)
+  .option('help', {
+    alias: 'h',
+    desc : 'Show this help'
+  })
+  .option('css', {
+    default: 'css,sass',
+    desc : 'CSS file extensions.'
+  })
+  .option('js', {
+    default: 'js,coffee,json',
+    desc : 'JavaScript file extensions.'
+  })
+  .option('html', {
+    default: 'html',
+    desc : 'HTML file extensions.'
+  })
+  .option('ignore', {
+    alias : 'i',
+    desc : 'Ignore a directory'
+  }).argv;
+
+if (argv.help) {
+  return optimist.showHelp()
+}
 
 send = server.serve();
 
@@ -12,21 +41,25 @@ var deb = function(func) {
   return _.debounce(func, 50);
 };
 
+var toExt = function(ext) {
+  return "."+ext;
+};
+
 var listeners = {
   css: {
-    match: /(.css|.sass)$/,
+    match: new RegExp(argv.css.split(",").map(toExt).join("|")+"$"),
     onChange: deb(function() {
       send("reload-css");
     })
   },
   js: {
-    match: /(.js|.coffee|.json)$/,
+    match: new RegExp(argv.js.split(",").map(toExt).join("|")+"$"),
     onChange: deb(function(f) {
       send("reload-js");
     })
   },
   html: {
-    match: /(.html)$/,
+    match: new RegExp(argv.html.split(",").map(toExt).join("|")+"$"),
     onChange: deb(function(f) {
       send("reload");
     })
