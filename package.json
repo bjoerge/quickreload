@@ -13,7 +13,8 @@
     "ws": "latest",
     "watch": "latest",
     "lodash": "latest",
-    "coffee-script": "latest"
+    "coffee-script": "latest",
+    "optimist": "latest"
   },
   "devDependencies": {
     "uglify-js": "~2.2.3"
