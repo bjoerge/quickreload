@@ -19,9 +19,6 @@
   "devDependencies": {
     "uglify-js": "~2.2.3"
   },
-  "browserify": {
-    "transform": ["coffeeify"]
-  },
   "optionalDependencies": {},
   "engines": {
     "node": "*"
