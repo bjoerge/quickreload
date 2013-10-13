@@ -9,6 +9,10 @@
   "bin": {
     "quickreload": "./bin/quickreload"
   },
+  "scripts": {
+    "prepublish": "coffee -c client.coffee",
+    "postpublish": "rm client.js"
+  },
   "dependencies": {
     "ws": "~0.4.25",
     "watch": "~0.7.0",
@@ -23,5 +27,5 @@
   "engines": {
     "node": "*"
   },
-  "main": "client.coffee"
+  "main": "client.js"
 }
