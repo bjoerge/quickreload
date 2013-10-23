@@ -15,7 +15,7 @@ var argv = optimist
     desc : 'Show this help'
   })
   .option('css', {
-    default: 'css,sass',
+    default: 'css,sass,scss,styl',
     desc : 'CSS file extensions.'
   })
   .option('js', {
