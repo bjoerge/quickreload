@@ -4,7 +4,8 @@ var
     watch = require("watch"),
     path = require("path"),
     server = require("../server"),
-    _ = require("lodash"),
+    debounce = require("lodash.debounce"),
+    once = require("lodash.once"),
     optimist = require('optimist');
 
 var argv = optimist
@@ -15,7 +16,7 @@ var argv = optimist
     desc : 'Show this help'
   })
   .option('css', {
-    default: 'css,sass,scss,styl',
+    default: 'css,sass,less,scss,styl',
     desc : 'CSS file extensions.'
   })
   .option('js', {
@@ -37,10 +38,6 @@ if (argv.help) {
 
 send = server.serve();
 
-var deb = function(func) {
-  return _.debounce(func, 50);
-};
-
 var toExt = function(ext) {
   return "."+ext;
 };
@@ -48,21 +45,21 @@ var toExt = function(ext) {
 var listeners = {
   css: {
     match: new RegExp(argv.css.split(",").map(toExt).join("|")+"$"),
-    onChange: deb(function() {
+    onChange: debounce(function() {
       send("reload-css");
-    })
+    }, 50)
   },
   js: {
     match: new RegExp(argv.js.split(",").map(toExt).join("|")+"$"),
-    onChange: deb(function(f) {
+    onChange: debounce(function(f) {
       send("reload-js");
-    })
+    }, 50)
   },
   html: {
     match: new RegExp(argv.html.split(",").map(toExt).join("|")+"$"),
-    onChange: deb(function(f) {
+    onChange: debounce(function(f) {
       send("reload");
-    })
+    }, 50)
   }
 };
 
@@ -74,9 +71,9 @@ var handleChange = function(f, stat) {
   });
 };
 
-watch.createMonitor(".", {interval: 100}, function (monitor) {
+watch.createMonitor(".", {interval: 100}, once(function (monitor) {
   monitor.on("created", handleChange);
   monitor.on("changed", handleChange);
   monitor.on("removed", handleChange);
-  console.log("Watching " + path.resolve("."))
-});
+  console.log("Watching %d files in %s", Object.keys(monitor.files).length, path.resolve("."))
+}));

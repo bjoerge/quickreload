@@ -17,7 +17,9 @@
     "watch": "~0.7.0",
     "lodash": "~1.2.0",
     "coffee-script": "~1.6.2",
-    "optimist": "~0.4.0"
+    "optimist": "~0.4.0",
+    "lodash.debounce": "~2.4.0",
+    "lodash.once": "~2.4.0"
   },
   "devDependencies": {
     "uglify-js": "~2.2.3"
