@@ -6,7 +6,8 @@ var
     server = require("../server"),
     debounce = require("lodash.debounce"),
     once = require("lodash.once"),
-    optimist = require('optimist');
+    optimist = require('optimist'),
+    minimatch = require("minimatch");
 
 var argv = optimist
   .usage('Usage: quickreload [root] {OPTIONS}')
@@ -29,49 +30,58 @@ var argv = optimist
   })
   .option('ignore', {
     alias : 'i',
-    desc : 'Ignore a directory'
+    desc : 'Ignore a directory or glob string'
   }).argv;
 
 if (argv.help) {
   return optimist.showHelp()
 }
 
-send = server.serve();
+var send = server.serve();
+var allExts = "*{"+[argv.css, argv.js, argv.html].join(",")+"}"; 
 
-var toExt = function(ext) {
-  return "."+ext;
-};
+function excludeFiles(f, stat) {
+  // Exclude dot files
+  if (path.basename(f)[0] == '.') return true;
 
-var listeners = {
-  css: {
-    match: new RegExp(argv.css.split(",").map(toExt).join("|")+"$"),
-    onChange: debounce(function() {
-      send("reload-css");
-    }, 50)
-  },
-  js: {
-    match: new RegExp(argv.js.split(",").map(toExt).join("|")+"$"),
-    onChange: debounce(function(f) {
-      send("reload-js");
-    }, 50)
-  },
-  html: {
-    match: new RegExp(argv.html.split(",").map(toExt).join("|")+"$"),
-    onChange: debounce(function(f) {
-      send("reload");
-    }, 50)
+  var matchIgnore = argv.ignore && minimatch(f, argv.ignore)
+
+  if (stat.isDirectory()) return matchIgnore;
+
+  return !minimatch(path.basename(f), allExts);
+}
+
+function hasExt(extensions) {
+  return function(f) {
+    return minimatch(f, "*.{"+extensions+"}")    
   }
-};
+}
+
+var handlers = [
+  {
+    match: hasExt(argv.css),
+    onChange: debounce(send.bind(send, "reload-css"), 50)
+  },
+  {
+    match: hasExt(argv.js),
+    onChange: debounce(send.bind(send, "reload-js"), 50)
+  },
+  {
+    match: hasExt(argv.html),
+    onChange: debounce(send.bind(send, "reload"), 50)
+  }
+];
 
 var handleChange = function(f, stat) {
-  Object.keys(listeners).forEach(function(key) {
-    var listener = listeners[key];
-    if (f.match(listener.match))
-      listener.onChange(f);
+  handlers.some(function(handler) {
+    if (handler.match(f)) {
+      handler.onChange(f);
+      return true;
+    }
   });
 };
 
-watch.createMonitor(".", {interval: 100}, once(function (monitor) {
+watch.createMonitor(".", {filter: excludeFiles}, once(function (monitor) {
   monitor.on("created", handleChange);
   monitor.on("changed", handleChange);
   monitor.on("removed", handleChange);
