@@ -53,7 +53,7 @@ function excludeFiles(f, stat) {
 
 function hasExt(extensions) {
   return function(f) {
-    return minimatch(f, "*.{"+extensions+"}")    
+    return minimatch(f, "*{"+extensions+"}")    
   }
 }
 
@@ -81,9 +81,9 @@ var handleChange = function(f, stat) {
   });
 };
 
-watch.createMonitor(".", {filter: excludeFiles}, once(function (monitor) {
+watch.createMonitor(".", {interval: 100, filter: excludeFiles}, function (monitor) {
   monitor.on("created", handleChange);
   monitor.on("changed", handleChange);
   monitor.on("removed", handleChange);
   console.log("Watching %d files in %s", Object.keys(monitor.files).length, path.resolve("."))
-}));
+});
