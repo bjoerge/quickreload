@@ -53,7 +53,8 @@ function excludeFiles(f, stat) {
 
 function hasExt(extensions) {
   return function(f) {
-    return minimatch(path.basename(f), "*{"+extensions+"}")    
+    var globstr = extensions.indexOf(",") > -1 ? "*.{"+extensions+"}" : "*."+extensions;
+    return minimatch(path.basename(f), globstr)
   }
 }
 
