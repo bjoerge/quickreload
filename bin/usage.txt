@@ -1,12 +1,3 @@
-# quickreload
-
-A tiny thing to make the browser reload css and javascript when files are changed on disk.
-
-Provides a command line tool and a middleware for express.
-
-## Command line
-
-```
 Usage: quickreload [options] [watchdir]
 
   Will default to current working directory if watchdir is omitted.
@@ -31,21 +22,3 @@ Usage: quickreload [options] [watchdir]
                                  Default: node_modules
 
                --port, -p <port> Port to listen to. Will assign a random available port by default.
-```
-
-## Express middleware
-
-```js
-var quickreload = require("quickreload");
-
-// ...
-
-app.use(quickreload());
-
-```
-
-Then include the following script tag on pages that should respond to file changes:
-
-```html
-<script src="/quickreload.js" async></script>
-```

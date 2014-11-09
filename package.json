@@ -3,30 +3,26 @@
   "name": "quickreload",
   "description": "A tiny thing to tell the browser to reload css / javascript when files are changed on disk",
   "version": "0.0.15",
-  "repository": {
-    "url": ""
-  },
+  "main": "index.js",
   "bin": {
-    "quickreload": "./bin/quickreload"
+    "quickreload": "./bin/quickreload.js"
   },
-  "scripts": {
-    "prepublish": "make clean && make"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bjoerge/quickreload.git"
   },
   "dependencies": {
-    "ws": "~0.4.25",
-    "watch": "~0.7.0",
-    "coffee-script": "~1.6.2",
-    "optimist": "~0.4.0",
-    "lodash.debounce": "~2.4.0",
-    "lodash.once": "~2.4.0",
-    "minimatch": "~0.2.12"
-  },
-  "devDependencies": {
-    "uglify-js": "~2.2.3"
-  },
-  "optionalDependencies": {},
-  "engines": {
-    "node": "*"
-  },
-  "main": "reloader.js"
+    "bluebird": "^2.3.11",
+    "browserify": "^6.1.2",
+    "debounce": "^1.0.0",
+    "debug": "^2.1.0",
+    "envify": "^3.0.0",
+    "express": "^4.10.1",
+    "getport": "^0.1.0",
+    "minimatch": "~0.2.12",
+    "minimist": "^1.1.0",
+    "watch": "^0.13.0",
+    "ws": "^0.4.32",
+    "xtend": "^4.0.0"
+  }
 }
