@@ -13,24 +13,29 @@ Usage: quickreload [options] [watchdir]
 
   Options:
 
-          --css <extensions...>  Comma separated list of extensions to treat as css files. The client will reload
-                                 all tags matching link[rel=stylesheet] when files with any of these extensions 
-                                 are changed.
-                                 Default: css,sass,scss,less,styl
+    --css <extensions...>  Comma separated list of extensions to treat as css
+                           files. The client will reload all tags matching 
+                           link[rel=stylesheet] when files with any of these
+                           extensions are changed.
+                           Default: css,sass,scss,less,styl
 
-           --js <extensions...>  Comma separated list of extensions to treat as js files. The client will do a 
-                                  full page reload when files with any of these extensions are changed.
-                                 Default: js,jsx,coffee,json
+     --js <extensions...>  Comma separated list of extensions to treat as js
+                           files. The client will do a full page reload when
+                           files with any of these extensions are changed.
+                           Default: js,jsx,coffee,json
 
-          --html <extensions...> Comma separated list of extensions to treat as js files. The client will do a 
-                                 full page reload when files with any of these extensions are changed.
-                                 Default: html
+    --html <extensions...> Comma separated list of extensions to treat as html 
+                           files. The client will do a full page reload when
+                           files with any of these extensions are changed.
+                           Default: html
 
-  --ignore, -i <dirname|globstr> A directory name or glob string that, if a directory matches it will, it will not be
-                                 watched for changes.
-                                 Default: node_modules
+--ignore, -i <dir|globstr> A directory name or glob string that, if a directory
+                           matches it will, it will not be  watched for 
+                           changes.
+                           Default: node_modules
 
-               --port, -p <port> Port to listen to. Will assign a random available port by default.
+         --port, -p <port> Port to listen to. Will assign a random available
+                           port by default.
 ```
 
 ## Express middleware
