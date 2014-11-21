@@ -15,7 +15,7 @@ var DEFAULTS = module.exports.DEFAULTS = {
   js: 'js,jsx,json,coffee',
 
   // extensions to treat as html (will reload page)
-  html: 'html',
+  html: 'html,jade',
   
   // Root directory
   root: process.cwd(),
