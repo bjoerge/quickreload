@@ -26,4 +26,4 @@ Usage: quickreload [options] [watchdir]
                            Default: node_modules
 
          --port, -p <port> Port to listen to. Will assign a random available
-                           port by default.
+                           port if not given.

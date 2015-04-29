@@ -1,13 +1,9 @@
-var WebSocketServer = require('ws').Server;
-
 var debug = require("debug")("quickreload");
 
-module.exports = function serve(options) {
-  var wss = new WebSocketServer(options);
-
+module.exports = function channel(webSocketServer) {
   var clients = [];
 
-  wss.on('connection', function (client) {
+  webSocketServer.on('connection', function (client) {
     var id = clients.push(client);
     debug("A client connected. Got %s connected clients.", clients.length);
     client.on('close', function() {
@@ -15,7 +11,7 @@ module.exports = function serve(options) {
     });
   });
 
-  wss.on('error', function (client) {
+  webSocketServer.on('error', function (client) {
     debug("Client error: ", client)
   });
 

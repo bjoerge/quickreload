@@ -4,11 +4,12 @@ var browserify = require("browserify");
 var envify = require("envify/custom");
 var debug = require("debug")("quickreload");
 var fs = require("fs");
-var getPort = require("getPort");
 var xtend = require("xtend");
+var http = require('http');
+var WebSocketServer = require('ws').Server;
 
 var createMonitor = require("../monitor");
-var createServer = require("../server");
+var createChannel = require("../channel");
 
 var argv = require('minimist')(process.argv.slice(2), {
   alias: {
@@ -18,9 +19,8 @@ var argv = require('minimist')(process.argv.slice(2), {
   default: require("../monitor").DEFAULTS
 });
 
-
 function showHelp() {
-  process.stdout.write(fs.readFileSync(__dirname+"/usage.txt"));
+  process.stdout.write(fs.readFileSync(__dirname + "/usage.txt"));
 }
 
 if (argv.help) {
@@ -28,53 +28,50 @@ if (argv.help) {
   process.exit(0)
 }
 
-function createHttpServer(wsPort) {
-  var http = require('http');
-  // Configure our HTTP server to respond with Hello World to all requests.
-  return http.createServer(function (request, response) {
-    response.writeHead(200, {"Content-Type": "text/javascript"});
-    browserify(require.resolve("../client.js"))
-      .transform(envify({ QUICKRELOAD_PORT: wsPort }))
-      .bundle()
-      .pipe(response);
+function createHttpServer(port, callback) {
+  var server = http.createServer();
+  server.listen(port, function(err) {
+    if (err) {
+      return callback(err)
+    }
+    var port = server.address().port;
+    server.on('request', function requestListener(request, response) {
+      response.writeHead(200, {"Content-Type": "text/javascript"});
+      // Todo: cache client script
+      browserify(require.resolve("../client.js"))
+        .transform(envify({QUICKRELOAD_PORT: port}))
+        .bundle()
+        .pipe(response);
+    });
+    callback(null, server)
   });
 }
 
+var monitorOptions = xtend(argv, {
+  ignore: [].concat(argv.ignore),
+  root: argv._[0] || process.cwd()
+});
 
-function getWSPort(cb) {
-  if (argv.port) {
-    return process.nextTick(cb.bind(null, null, argv.port));
-  }
-  getPort(50000, 50100, cb);
-}
 
-getWSPort(function(err, wsPort) {
-  var httpServer = createHttpServer(wsPort);
+createHttpServer(argv.port || 0, function(err, httpServer) {
 
-  var send = createServer({
-    server: httpServer
-  });
+  var address = httpServer.address();
 
-  var monitorOptions = xtend(argv, {
-    ignore: [].concat(argv.ignore),
-    root: argv._[0] || process.cwd()
-  });
+  console.log('Quickreload is accepting connections on ws://%s:%s', address.address, address.port);
+  console.log();
+  console.log('Include the following snippet in your html file(s): ');
+  console.log();
+  console.log('   <script src="http://localhost:%s"></script>', address.port);
+  console.log();
 
-  createMonitor(monitorOptions, function(err, monitor) {
-    monitor.on('change', function(ev) {
-      send('reload-'+ev.type)
+  var wsServer = new WebSocketServer({server: httpServer});
+
+  var send = createChannel(wsServer);
+
+  createMonitor(monitorOptions, function (err, monitor) {
+    monitor.on('change', function (ev) {
+      send('reload-' + ev.type)
     });
   });
 
-  httpServer.listen(wsPort, function(err) {
-    if (err) {
-      throw err;
-    }
-    console.log('Quickreload is accepting connections on ws://localhost:%s', wsPort);
-    console.log();
-    console.log('Include the following snippet in your html file(s): ');
-    console.log();
-    console.log('   <script src="http://localhost:%s"></script>', wsPort);
-    console.log();
-  });
 });

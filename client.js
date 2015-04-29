@@ -1,8 +1,4 @@
 // browser side 
-
-require('debug').disable();
-require('debug').enable(process.env.DEBUG);
-
 var debug = require("debug")('quickreload');
 
 var WebSocket = window.WebSocket;
@@ -37,6 +33,9 @@ function connect() {
   var connection = new WebSocket('ws://' + (document.location.hostname || 'localhost') + ':' + port);
 
   connection.onopen = function() {
+    if (reconnectAttempts > 0) {
+      console.log("quickreload reconnected")
+    }
     reconnectAttempts = 0;
     return debug("Connected to watcher");
   };
