@@ -99,7 +99,7 @@ module.exports = function quickreload(options) {
         res.type("application/javascript").send(script)
       })
     }
-    if (options.inject) {
+    if (options.inject !== false) {
       injectScript(res);
     }
     next();
