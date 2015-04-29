@@ -2,7 +2,7 @@
   "author": " <bjoerge@bengler.no>",
   "name": "quickreload",
   "description": "A tiny thing to tell the browser to reload css / javascript when files are changed on disk",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "start": "node example/server.js"
