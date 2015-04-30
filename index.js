@@ -148,8 +148,14 @@ module.exports = function quickreload(options) {
       }
     }
 
+    var snippet = '<script src="/quickreload.js" async></script>';
+
     function inject() {
-      buf = buf.replace(HEAD, '<script src="/quickreload.js" async></script></head>')
+      buf = buf.replace(HEAD, snippet);
+      if (res.getHeader('content-length') > 0) {
+        // If content-length is set we have the whole buffer already at hand
+        res.setHeader('content-length', buf.length);
+      }
     }
 
     function gotTag(buf) {
