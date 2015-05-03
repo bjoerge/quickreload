@@ -101,7 +101,7 @@ module.exports = function quickreload(options) {
       })
     }
     if (options.inject !== false) {
-      injectScript(res);
+      injectScript(req, res);
     }
     next();
   };
