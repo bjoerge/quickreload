@@ -14,6 +14,10 @@ app.get("/", function (req, res) {
   fs.createReadStream(__dirname+'/index.html').pipe(res.status(200).type('text/html'));
 });
 
+app.get("/no-status", function (req, res) {
+  res.send('ok');
+});
+
 app.get("/slow", function (req, res) {
   res.status(200).type('text/html');
 

@@ -1,11 +1,12 @@
 var WebSocketServer = require('ws').Server;
 var http = require('http');
-var channel = require("./channel");
+var channel = require("./lib/channel");
 var browserify = require("browserify");
 var debounce = require("debounce");
 var getPort = require("getport");
 var envify = require("envify/custom");
-var createMonitor = require("./monitor");
+var createMonitor = require("./lib/monitor");
+var injectScript= require("./lib/inject-script");
 
 function memoize(fn) {
   var state = 'accept';
@@ -105,70 +106,5 @@ module.exports = function quickreload(options) {
     next();
   };
 
-  function injectScript(res) {
-    var HEAD = /<\/head\s*>/;
-    var buf = "";
-    var contentType;
 
-    var write = res.write;
-    var end = res.end;
-
-    res.end = function(buf, enc) {
-      if (buf) {
-        this.write(buf, enc)
-      }
-      check();
-      end.call(res);
-    };
-
-    res.write = function(chunk, encoding) {
-
-      buf += chunk.toString();
-
-      if (!res.headersSent) {
-        return true;
-      }
-      check();
-      return true;
-    };
-
-    function check() {
-      if (!contentType) {
-        contentType = (res.getHeader('content-type') || '').split(';')[0];
-        if (contentType !== 'text/html') {
-          restore();
-          flush();
-          return;
-        }
-      }
-      if (gotTag(buf)) {
-        inject();
-        flush();
-        restore();
-      }
-    }
-
-    var snippet = '<script src="/quickreload.js" async></script>';
-
-    function inject() {
-      buf = buf.replace(HEAD, snippet);
-      if (res.getHeader('content-length') > 0) {
-        // If content-length is set we have the whole buffer already at hand
-        res.setHeader('content-length', buf.length);
-      }
-    }
-
-    function gotTag(buf) {
-      return HEAD.test(buf);
-    }
-
-    function flush() {
-      write.call(res, buf, 'utf-8')
-    }
-
-    function restore() {
-      res.write = write;
-      res.end = end;
-    }
-  }
 };

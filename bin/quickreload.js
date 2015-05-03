@@ -8,15 +8,15 @@ var xtend = require("xtend");
 var http = require('http');
 var WebSocketServer = require('ws').Server;
 
-var createMonitor = require("../monitor");
-var createChannel = require("../channel");
+var createMonitor = require("../lib/monitor");
+var createChannel = require("../lib/channel");
 
 var argv = require('minimist')(process.argv.slice(2), {
   alias: {
     i: 'ignore',
     p: 'port'
   },
-  default: require("../monitor").DEFAULTS
+  default: createMonitor.DEFAULTS
 });
 
 function showHelp() {
