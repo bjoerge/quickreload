@@ -6,7 +6,8 @@ var debounce = require("debounce");
 var getPort = require("getport");
 var envify = require("envify/custom");
 var createMonitor = require("./lib/monitor");
-var injectScript= require("./lib/inject-script");
+var injectScript = require("./lib/inject-script");
+var debug = require("debug")('quickreload');
 
 function memoize(fn) {
   var state = 'accept';
@@ -38,10 +39,19 @@ module.exports = function quickreload(options) {
 
   var getOrCreateServer = memoize(function (callback) {
     if (options.server) {
-      options.server.once('listening', function () {
-        return callback(null, options.server);
-      })
+      if (options.server instanceof http.Server) {
+        return options.server.once('listening', function () {
+          return callback(null, options.server);
+        })
+      }
+      console.log(
+        "Warning: quickreload expected options.server to be an instance" +
+        " of http.Server, instead got %s." +
+        " Will create a new server instance instead.",
+        options.server
+      )
     }
+
     var server = http.createServer();
 
     var port = options.port || 50000;
