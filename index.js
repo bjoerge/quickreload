@@ -40,9 +40,10 @@ module.exports = function quickreload(options) {
   var getOrCreateServer = memoize(function (callback) {
     if (options.server) {
       if (options.server instanceof http.Server) {
-        return options.server.once('listening', function () {
+        options.server.once('listening', function () {
           return callback(null, options.server);
-        })
+        });
+        return;
       }
       console.log(
         "Warning: quickreload expected options.server to be an instance" +

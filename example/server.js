@@ -1,12 +1,14 @@
-var path = require("path");
+var http = require("http");
 var fs = require("fs");
 var express = require("express");
 var errorHandler = require('dev-error-handler');
 
 var app = express();
 
+var server = http.createServer(app);
+
 app.use(require("..")({
-  server: app,
+  server: server,
   inject: true
 }));
 
@@ -65,7 +67,7 @@ app.get("/browser.js", function (req, res) {
 
 app.use(errorHandler)
 
-app.listen(3000, function(err) {
+server.listen(3000, function(err) {
   if (err) {
     throw err;
   }
