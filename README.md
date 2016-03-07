@@ -23,7 +23,6 @@ if (process.env.NODE_ENV === 'development') {
 Valid options are:
 
 - `inject` Will inject a snippet into all reponses with content-type set to text/html that loads the browser side part of quickreload. Default is true.
-- `server` This can be an instance of `http.Server` (i.e. the express app). The WebSocket server used by quickreload will listen for incoming requests using this server.   
 
 If using `inject: false`, the following snippet must be included in the source code of pages that should reload on changes:
 
@@ -43,7 +42,7 @@ Usage: quickreload [options] [watchdir]
   Options:
 
     --css <extensions...>  Comma separated list of extensions to treat as css
-                           files. The client will reload all tags matching 
+                           files. The client will reload all tags matching
                            link[rel=stylesheet] when files with any of these
                            extensions are changed.
                            Default: css,sass,scss,less,styl
@@ -53,13 +52,13 @@ Usage: quickreload [options] [watchdir]
                            files with any of these extensions are changed.
                            Default: js,jsx,coffee,json
 
-    --html <extensions...> Comma separated list of extensions to treat as html 
+    --html <extensions...> Comma separated list of extensions to treat as html
                            files. The client will do a full page reload when
                            files with any of these extensions are changed.
                            Default: html
 
 --ignore, -i <dir|globstr> A directory name or glob string that, if a directory
-                           matches it will, it will not be  watched for 
+                           matches it will, it will not be  watched for
                            changes.
                            Default: node_modules
 

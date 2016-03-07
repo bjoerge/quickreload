@@ -1,121 +1,57 @@
-var WebSocketServer = require('ws').Server;
-var http = require('http');
-var channel = require("./lib/channel");
-var browserify = require("browserify");
-var debounce = require("debounce");
-var getPort = require("getport");
-var envify = require("envify/custom");
-var createMonitor = require("./lib/monitor");
-var injectScript = require("./lib/inject-script");
-var debug = require("debug")('quickreload');
+var memoize = require('./lib/async-memoize')
+var createMonitor = require('./lib/monitor')
+var injectScript = require('./lib/inject-script')
+var debug = require('debug')('quickreload')
+var SseChannel = require('sse-channel')
 
-function memoize(fn) {
-  var state = 'accept';
-  var args = null;
-  var queue = [];
-  return function (callback) {
-    if (state == 'done') {
-      return process.nextTick(function () {
-        callback.apply(null, args);
-      })
-    }
-    queue.push(callback);
-    if (state == 'accept') {
-      state = 'waiting';
-      fn(function (err) {
-        state = err ? 'accept' : 'done';
-        args = arguments;
-        var cb;
-        while (cb = queue.shift()) {
-          cb.apply(null, args);
-        }
-      });
-    }
-  }
-}
+var createClientScript = memoize(require('./lib/createClientScript'))
 
-module.exports = function quickreload(options) {
-  options = options || {};
+// Set up an interval that broadcasts server date every second
+module.exports = function quickreload (options) {
+  options = options || {}
 
-  var getOrCreateServer = memoize(function (callback) {
-    if (options.server) {
-      if (options.server instanceof http.Server) {
-        options.server.once('listening', function () {
-          return callback(null, options.server);
-        });
-        return;
-      }
-      console.log(
-        "Warning: quickreload expected options.server to be an instance" +
-        " of http.Server, instead got %s." +
-        " Will create a new server instance instead.",
-        options.server
-      )
-    }
+  var channel = new SseChannel({jsonEncode: true})
 
-    var server = http.createServer();
-
-    var port = options.port || 50000;
-
-    getPort(port, port + 100, function (err, port) {
-      if (err) {
-        return callback(err);
-      }
-      server.listen(port, function (err) {
-        callback(err, server);
-      })
-    });
-  });
-
-  getOrCreateServer(function (err, server) {
+  createMonitor(options, function (err, monitor) {
     if (err) {
-      throw err;
+      throw err
     }
-    var wss = new WebSocketServer({server: server});
-    var send = debounce(channel(wss), 50, true);
-
-    createMonitor(options, function (err, monitor) {
-      monitor.on('change', function (ev) {
-        send('reload-' + ev.type);
-      });
-    });
-  });
-
-  var getClientScript = memoize(function (callback) {
-    getOrCreateServer(function (err, server) {
-      var port = server.address().port;
-      var b = browserify(__dirname + "/client.js")
-        .transform(envify({DEBUG: process.env.DEBUG, QUICKRELOAD_PORT: port}))
-        .bundle();
-      var buf = '';
-      b.on('data', function (chunk) {
-        buf += chunk;
-      });
-      b.on('error', callback)
-      b.on('end', function () {
-        callback(null, buf);
-      });
+    monitor.on('change', function (ev) {
+      channel.send({
+        event: 'change',
+        data: {type: ev.type, file: ev.file}
+      })
     })
-  });
+  })
 
   // Just to warm the client script cache
-  getClientScript(function () {
-  });
+  createClientScript(null, function () {})
 
   return function (req, res, next) {
-    if (req.path == '/quickreload.js') {
-      return getClientScript(function (err, script) {
+    if (req.path === '/quickreload.js') {
+      debug('Serving /quickreload.js')
+      res.type('application/javascript')
+      createClientScript(null, function (err, script) {
         if (err) {
-          return next(err);
+          res.writeHead(500, {'Content-Type': 'text/plain'})
+          res.send('Internal server error: ' + err.message)
+          return
         }
-        res.type("application/javascript").send(script)
+        res.writeHead(200, {'Content-Type': 'text/javascript'})
+        res.end(script)
       })
+
+      return
+    }
+    if (req.path === '/__quickreload_events') {
+      debug('Adding client')
+      channel.addClient(req, res)
+      return
     }
     if (options.inject !== false) {
-      injectScript(req, res);
+      debug('Injecting script')
+      injectScript(req, res)
     }
-    next();
-  };
-
-
-};
+    next()
+  }
+}

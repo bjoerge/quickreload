@@ -1,68 +1,42 @@
-// browser side 
-var debug = require("debug")('quickreload');
+// browser side
+var debug = require('debug')('quickreload')
+var EventSource = require('eventsource')
 
-var WebSocket = window.WebSocket;
-
-var port = process.env.QUICKRELOAD_PORT || 7888;
-
-if (!WebSocket) {
-  debug('No web sockets support.');
-}
-else {
-  connect();
+var RELOADERS = {
+  css: reloadStyleSheets,
+  js: reloadJavaScript,
+  html: reloadHtml
 }
 
-var reconnectTimer = null;
-var reconnectAttempts = 0;
-
-function reconnect() {
-  reconnectTimer = null;
-  connect();
-}
-function reloadStyleSheets() {
-  var killcache = '__quickreload=' + new Date().getTime();
-  var stylesheets = Array.prototype.slice.call(document.querySelectorAll('link[rel="stylesheet"]'));
+function reloadStyleSheets () {
+  var killcache = '__quickreload=' + new Date().getTime()
+  var stylesheets = Array.prototype.slice.call(document.querySelectorAll('link[rel="stylesheet"]'))
   stylesheets.forEach(function (el) {
-    var href = el.href.replace(/(&|\?)__quickreload\=\d+/, '');
-    el.href = '';
-    el.href = href + (href.indexOf("?") == -1 ? '?' : '&') + killcache;
-  });
+    var href = el.href.replace(/(&|\?)__quickreload\=\d+/, '')
+    el.href = ''
+    el.href = href + (href.indexOf('?') === -1 ? '?' : '&') + killcache
+  })
 }
 
-function connect() {
-  var connection = new WebSocket('ws://' + (document.location.hostname || 'localhost') + ':' + port);
-
-  connection.onopen = function() {
-    if (reconnectAttempts > 0) {
-      console.log("quickreload reconnected")
-    }
-    reconnectAttempts = 0;
-    return debug("Connected to watcher");
-  };
-
-  connection.onerror = function() {
-  };
-
-  connection.onclose = function() {
-    var delay = (reconnectAttempts == 0 ? 100 : 0) + reconnectAttempts*500;
-    reconnectAttempts++;
-    debug("Connection closed. Reconnecting in %dms", delay);
-    if (!reconnectTimer) {
-      reconnectTimer = setTimeout(reconnect, delay);
-    }
-  };
-
-  return connection.onmessage = function(message) {
-    switch (message.data) {
-      case 'reload-css':
-        debug('CSS changes detected. Reloading');
-        return reloadStyleSheets();
-      case 'reload-js':
-        debug('JavaScript changes detected. Reloading');
-        return window.location.reload();
-      case 'reload-html':
-        debug('HTML changes detected. Reloading');
-        return window.location.reload();
-    }
-  };
+function reloadJavaScript () {
+  window.location.reload()
 }
+
+function reloadHtml () {
+  window.location.reload()
+}
+
+var serverUrl = process.env.SERVER_URL || ''
+
+var events = new EventSource(serverUrl + '/__quickreload_events')
+events.addEventListener('change', function (event) {
+  var change = JSON.parse(event.data)
+
+  debug('Changed: %s', change.file)
+
+  if (RELOADERS.hasOwnProperty(change.type)) {
+    RELOADERS[change.type]()
+  } else {
+    console.log('Don\'t know how what do do when files of type "%s" changes (file: %s)', change.type, change.file)
+  }
+})
