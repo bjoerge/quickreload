@@ -8,7 +8,10 @@ var app = express()
 
 var server = http.createServer(app)
 
-app.use(require('..')())
+app.use(require('..')({
+  inject: true,
+  polyfill: false
+}))
 
 app.get('/', function (req, res) {
   fs.createReadStream(path.join(__dirname, '/index.html')).pipe(res.status(200).type('text/html'))
