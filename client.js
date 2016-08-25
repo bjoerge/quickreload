@@ -1,7 +1,7 @@
 /* globals EventSource */
 // browser side
 
-var debug = process.env.DEBUG.indexOf('quickreload') > -1 ? function() {
+var debug = (process.env.DEBUG || '').indexOf('quickreload') > -1 ? function () {
   var args = Array.prototype.slice.call(arguments)
   console.log.apply(console, ['[quickreload] ' + args[0]].concat(args.slice(1)))
 } : function noop() {}
