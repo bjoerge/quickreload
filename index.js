@@ -24,14 +24,15 @@ module.exports = function quickreload (options) {
     })
   })
 
+  const clientScriptOpts = {polyfill: options.polyfill}
   // Just to warm the client script cache
-  createClientScript(null, function () {})
+  createClientScript(clientScriptOpts, function noop () {})
 
   return function (req, res, next) {
     if (req.path === '/quickreload.js') {
       debug('Serving /quickreload.js')
       res.type('application/javascript')
-      createClientScript(null, function (err, script) {
+      createClientScript(clientScriptOpts, function (err, script) {
         if (err) {
           res.writeHead(500, {'Content-Type': 'text/plain'})
           res.send('Internal server error: ' + err.message)

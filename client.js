@@ -1,7 +1,11 @@
+/* globals EventSource */
 // browser side
-var debug = require('debug')('quickreload')
-var EventSource = require('eventsource')
 
+var debug = process.env.DEBUG.indexOf('quickreload') > -1 ? function() {
+  var args = Array.prototype.slice.call(arguments)
+  console.log.apply(console, ['[quickreload] ' + args[0]].concat(args.slice(1)))
+} : function noop() {}
+console.log(process.env.DEBUG)
 var RELOADERS = {
   css: reloadStyleSheets,
   js: reloadJavaScript,
@@ -26,9 +30,8 @@ function reloadHtml () {
   window.location.reload()
 }
 
-var serverUrl = process.env.SERVER_URL || ''
-
-var events = new EventSource(serverUrl + '/__quickreload_events')
+var events = new EventSource('/__quickreload_events')
+debug('connected')
 events.addEventListener('change', function (event) {
   var change = JSON.parse(event.data)
 
